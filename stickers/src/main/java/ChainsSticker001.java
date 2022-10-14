@@ -37,7 +37,7 @@ public class ChainsSticker001 extends PApplet {
         ellipse(cx, cy, w, w);
         fill(0, 0, 100);
         ellipse(cx, cy, 42, 42);
-        strokeWeight(1);
+        strokeWeight(2);
         hu = 250;
         noFill();
     }
@@ -52,10 +52,10 @@ public class ChainsSticker001 extends PApplet {
             // hu+=50;
         } else {
             link();
-            john("CHAINS",127,false);
+            john("CHAINS",131,false);
             rad+=80;
-            john("https://chains.proj.kth.se",42,true);
-            save("chains-sticker001.png");
+            john("https://chains.proj.kth.se",62,true);
+            save("chains-sticker001.png");   
             noLoop();
         }
     }

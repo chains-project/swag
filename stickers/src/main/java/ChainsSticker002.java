@@ -18,7 +18,7 @@ import com.google.gson.JsonArray;
 
 public class ChainsSticker002 extends PApplet {
 
-    String fileName = "bomJenkins.json";
+    String fileName = "./stickers/src/main/resources/bomJenkins.json";
     int shalen = 64; // length of a sha-256 in hex
     int bytelen = 16; // number of values in hex
     int offset = 276; // margin around the image

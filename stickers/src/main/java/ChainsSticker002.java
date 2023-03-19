@@ -5,14 +5,24 @@ import java.util.Random;
 import processing.core.PFont;
 
 public class ChainsSticker002 extends PApplet {
-    int w = 1000;
-    int h = 1000;
-    float cx=w/2;
-    float cy=h/2;
-    float rad=w-176;
+    int shalen = 64; // length of a sha-256 in hex
+    int bytelen = 16; // number of values in hex
+    int offset = 176;
+    int w = shalen * (bytelen + 2) + offset; // canvas is square, we add to bytelen to allow for 1 px space on the side
+                                             // of each element that represents one character in the sha
+    int h = w;
+    float cx = w / 2;
+    float cy = h / 2;
+    float rad = w - offset;
     Random alea = new Random();
     HashMap<Character, Integer> maphex = new HashMap<Character, Integer>();
     ArrayList<String> hashes = new ArrayList<>();
+    int hashes_ind = 0;
+    float angle = 0;
+    float angle_step;
+    String sha;
+    float x1 = -(w / 2 - 88);
+    float x2 = w / 2 - 88;
 
     @Override
     public void settings() {
@@ -23,37 +33,60 @@ public class ChainsSticker002 extends PApplet {
     public void setup() {
         colorMode(HSB, 360, 100, 100);
         initMapHex();
-        background(0,0,0);
+        background(0, 0, 0);
+        hashes.add("21af30c92267bd6122c0e0b4d20cccb6641a37eaf956c6540ec471d584e64a7b");
+        hashes.add("21af39c92267bd6122c0e0b4d23cdcb6641a37eaf956c6540ec471d584e64a7b");
+        hashes.add("21af39c92267bd6142c0e0b4d23cdcb6641a3beaf956c6540ec471df84e64a7b");
+        angle_step = 360/hashes.size();
     }
-
 
     @Override
     public void draw() {
-        stroke(0, 0, 100); strokeWeight(3);
-        String str="21af30c92267bd6122c0e0b4d20cccb6641a37eaf956c6540ec471d584e64a7b";
-        int shasize = str.length();
-        float x = 88;
-        float y = 88;
-        float step = rad/shasize;
-        int local;
-        float off;
-        for (int i = 0;i < str.length(); i++){
-            local = maphex.get(str.charAt(i));
-            if(local==15){stroke(0,100,100);}
-            else{stroke(0,0,100);}
-            off = (step-local)/2;
-            line(x+off,y,x+off+local,y);
-            x+=step; y+=step;
-            System.out.println(i+": "+str.charAt(i)+" "+maphex.get(str.charAt(i)));
+        drawshas();
+        /*
+         * john("CHAINS", 131, false);
+         * rad += 80;
+         * john("https://chains.proj.kth.se", 62, true);
+         * save("chains-sticker002.png");
+         */
+        // noLoop();
+        if (frameCount == 84) {
+            noLoop();
         }
-        /*john("CHAINS", 131, false);
-        rad += 80;
-        john("https://chains.proj.kth.se", 62, true);
-        save("chains-sticker002.png");*/
-        noLoop();
     }
 
-    private void initMapHex(){
+    private void drawshas() {
+        translate(w / 2, h / 2);
+        stroke(0, 0, 100);
+        strokeWeight(3);
+        if (hashes_ind < hashes.size()) {
+            sha=hashes.get(hashes_ind);
+            if (sha.length() == shalen) {
+                int step = bytelen + 2;
+                float x = -rad / 2;
+                float y = h / 2;
+                int local;
+                float off;
+                rotate(radians(angle));
+                for (int i = 0; i < sha.length(); i++) {
+                    local = maphex.get(sha.charAt(i));
+                    if (local == 15) {
+                        stroke(0, 100, 100);
+                    } else {
+                        stroke(0, 0, 100);
+                    }
+                    off = (step - local) / 2;
+                    line((x + 1 + off), 0, (x + 1 + +off + local), 0);
+                    System.out.println(i + "::: x: " + x + "; off: " + off + "; local: " + local);
+                    x += step;
+                }
+                angle+=angle_step;
+            }
+            hashes_ind++;
+        }
+    }
+
+    private void initMapHex() {
         maphex.put('0', 0);
         maphex.put('1', 1);
         maphex.put('2', 2);
@@ -71,7 +104,6 @@ public class ChainsSticker002 extends PApplet {
         maphex.put('e', 14);
         maphex.put('f', 15);
     }
-
 
     // https://processing.org/tutorials/text/#displaying-text-character-by-character
     private void john(String baldessari, int art, boolean opposite) {

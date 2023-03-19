@@ -2,7 +2,15 @@ import processing.core.PApplet;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Random;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import processing.core.PFont;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 
 public class ChainsSticker002 extends PApplet {
     int shalen = 64; // length of a sha-256 in hex
@@ -16,10 +24,11 @@ public class ChainsSticker002 extends PApplet {
     float rad = w - offset;
     Random alea = new Random();
     HashMap<Character, Integer> maphex = new HashMap<Character, Integer>();
+    Gson gson = new Gson();
     ArrayList<String> hashes = new ArrayList<>();
     int hashes_ind = 0;
     float angle = 0;
-    float angle_step;
+    double angle_step;
     String sha;
     float x1 = -(w / 2 - 88);
     float x2 = w / 2 - 88;
@@ -34,10 +43,39 @@ public class ChainsSticker002 extends PApplet {
         colorMode(HSB, 360, 100, 100);
         initMapHex();
         background(0, 0, 0);
-        hashes.add("21af30c92267bd6122c0e0b4d20cccb6641a37eaf956c6540ec471d584e64a7b");
-        hashes.add("21af39c92267bd6122c0e0b4d23cdcb6641a37eaf956c6540ec471d584e64a7b");
-        hashes.add("21af39c92267bd6142c0e0b4d23cdcb6641a3beaf956c6540ec471df84e64a7b");
-        angle_step = 360/hashes.size();
+        //hashes.add("21af30c92267bd6122c0e0b4d20cccb6641a37eaf956c6540ec471d584e64a7b");
+        //hashes.add("21af39c92267bd6122c0e0b4d23cdcb6641a37eaf956c6540ec471d584e64a7b");
+        //hashes.add("21af39c92267bd6142c0e0b4d23cdcb6641a3beaf956c6540ec471df84e64a7b");
+        get_shas();
+        angle_step = 1.66;//180/hashes.size()+1;
+        System.out.println(hashes.size()+" "+angle_step);
+    }
+
+    private void get_shas(){
+        try {
+            FileReader fr = new FileReader("bomJenkins.json");
+            BufferedReader br = new BufferedReader(fr);
+            //convert the json string back to object
+            JsonElement sbom = JsonParser.parseReader(br);
+            JsonObject sbomObj = sbom.getAsJsonObject();
+            JsonArray components = sbomObj.get("components").getAsJsonArray();
+            for (JsonElement c : components) {
+                if (c.getAsJsonObject().get("hashes")!=null){
+                    JsonArray hashcollection = c.getAsJsonObject().get("hashes").getAsJsonArray();
+                    for (JsonElement h : hashcollection) {
+                        if (h.getAsJsonObject().get("alg").getAsString().equals("SHA-256")){
+                            System.out.println(h.getAsJsonObject().get("content").getAsString());
+                            hashes.add(h.getAsJsonObject().get("content").getAsString());
+                        }
+                    }
+                }
+            }
+              
+            //System.out.println( sbomObj.get("components").getAsJsonArray().get(2).getAsJsonObject().get("hashes").getAsJsonArray().get(0));    
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    
     }
 
     @Override
@@ -50,9 +88,6 @@ public class ChainsSticker002 extends PApplet {
          * save("chains-sticker002.png");
          */
         // noLoop();
-        if (frameCount == 84) {
-            noLoop();
-        }
     }
 
     private void drawshas() {
@@ -77,10 +112,10 @@ public class ChainsSticker002 extends PApplet {
                     }
                     off = (step - local) / 2;
                     line((x + 1 + off), 0, (x + 1 + +off + local), 0);
-                    System.out.println(i + "::: x: " + x + "; off: " + off + "; local: " + local);
                     x += step;
                 }
                 angle+=angle_step;
+                System.out.println("::: angle: " + angle + "; hashes_ind: " + hashes_ind);
             }
             hashes_ind++;
         }

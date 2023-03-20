@@ -63,7 +63,7 @@ public class ChainsSticker002 extends PApplet {
         }
         else{
             noLoop();
-            john("CHAINS", 191, false); //131
+            john("CHAINS", 191, false);
             rad += 80;
             john("https://chains.proj.kth.se", 62, true);
             save(fileName+"001.png");

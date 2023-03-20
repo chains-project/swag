@@ -19,15 +19,17 @@ import com.google.gson.JsonArray;
 public class ChainsSticker002 extends PApplet {
 
     String fileName = "./stickers/src/main/resources/bomJenkins.json";
+    int resolution = 2;
+    int thickness = 5;
     int shalen = 64; // length of a sha-256 in hex
     int bytelen = 16; // number of values in hex
     int offset = 276; // margin around the image
     // canvas is square, we add to bytelen to allow for 1 px space on the side of each element that represents one character in the sha
-    int w = shalen * (bytelen + 2) + offset; 
+    int w = (shalen * (bytelen + 2) + offset)*resolution; 
     int h = w;
     float cx = w / 2;
     float cy = h / 2;
-    float rad = w - offset;
+    float rad = w - (offset*resolution);
     Random alea = new Random();
     HashMap<Character, Integer> maphex = new HashMap<Character, Integer>();
     Gson gson = new Gson();
@@ -49,6 +51,7 @@ public class ChainsSticker002 extends PApplet {
         initMapHex();
         get_shas();
         angle_step = 180.0 / hashes.size();
+        System.out.println("rad: "+rad+"; angle_step: "+angle_step);
     }
 
 
@@ -63,7 +66,7 @@ public class ChainsSticker002 extends PApplet {
             john("CHAINS", 191, false); //131
             rad += 80;
             john("https://chains.proj.kth.se", 62, true);
-            save(fileName+".png");
+            save(fileName+"001.png");
         }
          
     }
@@ -72,25 +75,25 @@ public class ChainsSticker002 extends PApplet {
         translate(w / 2, h / 2);
         noFill();
         stroke(0, 0, 100);
-        strokeWeight(5);
+        strokeWeight(thickness);
         sha = hashes.get(hashes_ind);
         if (sha.length() == shalen) {
-            int step = bytelen + 2;
+            int step = (bytelen + 2)*resolution;
             float x = -rad / 2;
             float y = h / 2;
             int local;
             float off;
             rotate(radians(angle));
             for (int i = 0; i < sha.length(); i++) {
-                local = maphex.get(sha.charAt(i));
-                if (local == 15) {
+                local = maphex.get(sha.charAt(i))*resolution;
+                if (local == 15 * 2) {
                     stroke(0, 100, 100);
                 } else {
                     stroke(0, 0, 100);
                 }
                 off = (step - local) / 2;
-                //line((x + 1 + off), 0, (x + 1 + +off + local), 0);
-                ellipse(x+step/2,0,local,local);
+                line((x + 1 + off), 0, (x + 1 + +off + local), 0);
+                //ellipse(x+step/2,0,local,local);
                 x += step;
             }
             angle += angle_step;

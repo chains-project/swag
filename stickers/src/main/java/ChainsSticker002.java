@@ -21,6 +21,7 @@ public class ChainsSticker002 extends PApplet {
     String fileName = "./stickers/src/main/resources/bomJenkins.json";
     int resolution = 2;
     int thickness = 5;
+    String shape = "square"; // can take 3 values: "square", "circle", "line"
     int shalen = 64; // length of a sha-256 in hex
     int bytelen = 16; // number of values in hex
     int offset = 276; // margin around the image
@@ -63,10 +64,10 @@ public class ChainsSticker002 extends PApplet {
         }
         else{
             noLoop();
-            john("CHAINS", 191, false);
+            john("CHAINS", 191*resolution, false);
             rad += 80;
-            john("https://chains.proj.kth.se", 62, true);
-            save(fileName+"001.png");
+            john("https://chains.proj.kth.se", 62*resolution, true);
+            save(fileName+shape+".png");
         }
          
     }
@@ -92,12 +93,12 @@ public class ChainsSticker002 extends PApplet {
                     stroke(0, 0, 100);
                 }
                 off = (step - local) / 2;
-                line((x + 1 + off), 0, (x + 1 + +off + local), 0);
-                //ellipse(x+step/2,0,local,local);
+                if (shape=="line"){line((x + 1 + off), 0, (x + 1 + +off + local), 0);}
+                if (shape=="circle"){ellipse(x+step/2,0,local,local);}
+                if (shape=="square"){float l2=local/2; quad(x-l2+step/2, -l2, x+l2+step/2, -l2, x+l2+step/2, l2, x-l2+step/2, l2);}
                 x += step;
             }
             angle += angle_step;
-            System.out.println("::: angle: " + angle + "; hashes_ind: " + hashes_ind);
         }
     }
 
@@ -120,7 +121,9 @@ public class ChainsSticker002 extends PApplet {
         maphex.put('f', 15);
     }
 
-    /* finds all sha-256 checksums in fileName and stores them in the hashes Array */
+    /* finds all sha-256 checksums in fileName and stores them in the hashes Array 
+     * assumes a CycloneDX SBOM where the checksum algorithm is labeled in the "alg" field
+    */
     private void get_shas() {
         try {
             FileReader fr = new FileReader(fileName);
@@ -133,7 +136,6 @@ public class ChainsSticker002 extends PApplet {
                     JsonArray hashcollection = c.getAsJsonObject().get("hashes").getAsJsonArray();
                     for (JsonElement h : hashcollection) {
                         if (h.getAsJsonObject().get("alg").getAsString().equals("SHA-256")) {
-                            System.out.println(h.getAsJsonObject().get("content").getAsString());
                             hashes.add(h.getAsJsonObject().get("content").getAsString());
                         }
                     }
